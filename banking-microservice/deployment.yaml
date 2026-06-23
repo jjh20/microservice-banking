@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: banking-microservice
+  labels:
+    app: banking-microservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: banking-microservice
+  template:
+    metadata:
+      labels:
+        app: banking-microservice
+    spec:
+      containers:
+      - name: banking-microservice
+        image: tu-usuario/banking-microservice:latest # Cambia esto por tu imagen real
+        ports:
+        - containerPort: 3000
+        env:
+        - name: MONGO_URI
+          valueFrom:
+            secretKeyRef:
+              name: mongo-secret # Nombre del secret en OpenShift
+              key: uri
