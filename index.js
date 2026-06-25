@@ -31,7 +31,7 @@ app.post('/cuenta', async (req, res) => {
 app.get('/saldo/:accountNumber', async (req, res) => {
     try {
         const acc = await Account.findOne({ accountNumber: req.params.accountNumber });
-        acc ? res.json(acc) : res.status(404).json({ message: "Cuenta no encontrada" });
+        acc ? res.json(acc) : res.status(404).json({ message: "Cuenta inexistente" });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
