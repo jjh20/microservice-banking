@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: microservice-banking
+spec:
+  selector:
+    app: microservice-banking
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: ClusterIP

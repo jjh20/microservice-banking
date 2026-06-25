@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: microservice-banking
+  labels:
+    app: microservice-banking
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: microservice-banking
+  template:
+    metadata:
+      labels:
+        app: microservice-banking
+    spec:
+      containers:
+        - name: microservice-banking
+          image: docker.io/mongo:6
+          ports:
+            - containerPort: 3000
+          env:
+            - name: MONGO_URI
+              value: "mongodb://admin:mongo1234@mongo-db:27017/banking?authSource=admin"
