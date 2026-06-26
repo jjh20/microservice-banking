@@ -21,4 +21,4 @@ spec:
             - containerPort: 3000
           env:
             - name: MONGO_URI
-              value: "mongodb://admin:mongo1234@mongo-db:27017/banking?authSource=admin"
+              value: false
