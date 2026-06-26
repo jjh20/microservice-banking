@@ -27,7 +27,7 @@ app.post('/cuenta', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 2. Consultar Saldo
+// 2. Consultar Saldoo
 app.get('/saldo/:accountNumber', async (req, res) => {
     try {
         const acc = await Account.findOne({ accountNumber: req.params.accountNumber });
