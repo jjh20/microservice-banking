@@ -31,7 +31,7 @@ app.post('/cuenta', async (req, res) => {
 app.get('/saldo/:accountNumber', async (req, res) => {
     try {
         const acc = await Account.findOne({ accountNumber: req.params.accountNumber });
-        acc ? res.json(acc) : res.status(404).json({ message: "Cuenta inexistente" });
+        acc ? res.json(acc) : res.status(404).json({ message: "Cuenta no existe" });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
@@ -47,4 +47,6 @@ app.post('/retiro', async (req, res) => {
         acc ? res.json(acc) : res.status(400).json({ error: "Saldo insuficiente" });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
+
+
 
