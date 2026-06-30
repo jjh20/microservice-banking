@@ -1,14 +1,25 @@
 services:
   mongodb:
     image: mongo:latest
+    container_name: banking-mongo
     ports:
       - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
 
   banking-service:
     build: .
+    container_name: banking-api
     ports:
       - "3000:3000"
     environment:
       - MONGO_URI=mongodb://mongodb:27017/bankdb?retryWrites=false
+      - NODE_ENV=production
+      - PORT=3000
     depends_on:
       - mongodb
+    restart: unless-stopped
+
+volumes:
+  mongo_data:
