@@ -6,7 +6,7 @@ const Account = require('./Account');
 const app = express();
 app.use(express.json());
 
-// Conexión a MongoDB 
+//Conexión a MongoDB 
 console.log('URI:', process.env.MONGO_URI);
 mongoose.connect(process.env.MONGO_URI || 'mongodb://mongodb:27017/bankdb?retryWrites=false')
   .then(() => {
