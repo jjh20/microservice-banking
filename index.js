@@ -14,7 +14,7 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://mongodb:27017/bankdb?retryW
     app.listen(3000, () => console.log('Servicio corriendo en puerto 3000'));
   })
   .catch(err => console.error('Error de conexión:', err));
-// Ruta de prueba
+//Ruta de prueba
 app.get('/test', (req, res) => res.json({ status: "OK", message: "Microservicio operativo" }));
 
 // 1. Crear cuenta
