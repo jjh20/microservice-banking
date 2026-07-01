@@ -35,7 +35,7 @@ app.get('/saldo/:accountNumber', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 3. Retirar
+// 3.Retirar
 app.post('/retiro', async (req, res) => {
     try {
         const { accountNumber, amount } = req.body;
