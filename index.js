@@ -1,3 +1,4 @@
+const { connectRabbitMQ, publishEvent } = require('./config/rabbitmq');
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
@@ -11,6 +12,7 @@ console.log('URI:', process.env.MONGO_URI);
 mongoose.connect(process.env.MONGO_URI || 'mongodb://mongodb:27017/bankdb?retryWrites=false')
   .then(() => {
     console.log('MongoDB conectado exitosamente');
+    connectRabbitMQ();
     app.listen(3000, () => console.log('Servicio corriendo en puerto 3000'));
   })
   .catch(err => console.error('Error de conexión:', err));
@@ -36,6 +38,7 @@ app.get('/saldo/:accountNumber', async (req, res) => {
 });
 
 // 3.Retirar
+// 3.Retirar
 app.post('/retiro', async (req, res) => {
     try {
         const { accountNumber, amount } = req.body;
@@ -44,7 +47,16 @@ app.post('/retiro', async (req, res) => {
             { $inc: { balance: -amount } },
             { new: true }
         );
-        acc ? res.json(acc) : res.status(400).json({ error: "Saldo insuficiente" });
+
+        if (!acc) return res.status(400).json({ error: "Saldo insuficiente" });
+
+        await publishEvent('transaction.withdraw', {
+            accountNumber: acc.accountNumber,
+            amount: amount,
+            newBalance: acc.balance
+        });
+
+        res.json(acc);
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
