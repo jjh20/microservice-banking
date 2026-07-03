@@ -16,9 +16,34 @@ spec:
     spec:
       containers:
         - name: microservice-banking
-          image: docker.io/mongo:6
+          image: docker.io/jaeljjh/banking-api:v1  # <--- ¡Tu imagen oficial de la nube!
           ports:
             - containerPort: 3000
           env:
+            # Variable de Base de Datos
             - name: MONGO_URI
               value: "mongodb://admin:mongo1234@mongo-db:27017/banking?authSource=admin"
+            
+            # =========================================================
+            # CONEXIÓN A RABBITMQ (ConfigMap y Secret)
+            # =========================================================
+            - name: RABBITMQ_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: rabbitmq-config
+                  key: RABBITMQ_HOST
+            - name: RABBITMQ_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: rabbitmq-config
+                  key: RABBITMQ_PORT
+            - name: RABBITMQ_USER
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-credentials
+                  key: RABBITMQ_USER
+            - name: RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-credentials
+                  key: RABBITMQ_PASSWORD
