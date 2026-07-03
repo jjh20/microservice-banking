@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: rabbitmq-config
-  namespace: argocd
+  namespace: default
 data:
   RABBITMQ_PORT: "5672"
   RABBITMQ_HOST: "host.docker.internal"
