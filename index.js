@@ -20,15 +20,26 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://mongodb:27017/bankdb?retryW
 app.get('/test', (req, res) => res.json({ status: "OK", message: "Microservicio operativo" }));
 
 // 1. Crear cuenta
+// 1. Crear cuenta
 app.post('/cuenta', async (req, res) => {
     try {
         const { accountNumber, owner, balance } = req.body;
         const cuenta = new Account({ accountNumber, owner, balance });
         await cuenta.save();
-        res.status(201).json(cuenta);
-    } catch (err) { res.status(500).json({ error: err.message }); }
-});
+        /// Cuenta
+        await publishEvent('transaction.cuenta', {
+            evento: 'CUENTA_CREADA',
+            accountNumber: cuenta.accountNumber,
+            owner: cuenta.owner,
+            balance: cuenta.balance,
+            idRegistro: cuenta._id
+        });
 
+        res.status(201).json(cuenta);
+    } catch (err) { 
+        res.status(500).json({ error: err.message }); 
+    }
+});
 // 2. Consultar Saldo cuenta
 app.get('/saldo/:accountNumber', async (req, res) => {
     try {
