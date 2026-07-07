@@ -50,16 +50,25 @@ app.get('/saldo/:accountNumber', async (req, res) => {
 
 // 3.Retirar
 // 3.Retirar
+// 3. Retirar
 app.post('/retiro', async (req, res) => {
     try {
         const { accountNumber, amount } = req.body;
+
+        // =========================================================
+        // NUEVO: Barrera de validación de datos (Capa de Seguridad)
+        // =========================================================
+        if (typeof amount !== 'number' || amount <= 0) {
+            return res.status(400).json({ error: "El monto debe ser un número mayor a cero" });
+        }
+
         const acc = await Account.findOneAndUpdate(
             { accountNumber, balance: { $gte: amount } },
             { $inc: { balance: -amount } },
             { new: true }
         );
 
-        if (!acc) return res.status(400).json({ error: "Saldo insuficiente" });
+        if (!acc) return res.status(404).json({ error: "Cuenta no existe o saldo insuficiente" });
 
         await publishEvent('transaction.withdraw', {
             accountNumber: acc.accountNumber,
@@ -68,7 +77,9 @@ app.post('/retiro', async (req, res) => {
         });
 
         res.json(acc);
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    } catch (err) { 
+        res.status(500).json({ error: err.message }); 
+    }
 });
 
 
