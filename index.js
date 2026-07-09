@@ -7,7 +7,7 @@ const Account = require('./Account');
 const app = express();
 app.use(express.json());
 
-//Conexión a MongoDB 
+// Conexión a MongoDB 
 console.log('URI:', process.env.MONGO_URI);
 mongoose.connect(process.env.MONGO_URI || 'mongodb://mongodb:27017/bankdb?retryWrites=false')
   .then(() => {
@@ -16,17 +16,23 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://mongodb:27017/bankdb?retryW
     app.listen(3000, () => console.log('Servicio corriendo en puerto 3000'));
   })
   .catch(err => console.error('Error de conexión:', err));
-//Ruta de prueba
+
+// Ruta de prueba
 app.get('/test', (req, res) => res.json({ status: "OK", message: "Microservicio operativo" }));
 
-// 1. Crear cuenta
 // 1. Crear cuenta
 app.post('/cuenta', async (req, res) => {
     try {
         const { accountNumber, owner, balance } = req.body;
+
+        // BARRERA QA: No permitir cuentas con saldo inicial negativo o inválido
+        if (typeof balance !== 'number' || balance < 0) {
+            return res.status(400).json({ error: "El balance inicial debe ser un número válido y no negativo" });
+        }
+
         const cuenta = new Account({ accountNumber, owner, balance });
         await cuenta.save();
-        /// Cuenta
+        
         await publishEvent('transaction.cuenta', {
             evento: 'CUENTA_CREADA',
             accountNumber: cuenta.accountNumber,
@@ -40,6 +46,7 @@ app.post('/cuenta', async (req, res) => {
         res.status(500).json({ error: err.message }); 
     }
 });
+
 // 2. Consultar Saldo cuenta
 app.get('/saldo/:accountNumber', async (req, res) => {
     try {
@@ -48,39 +55,46 @@ app.get('/saldo/:accountNumber', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// 3.Retirar
-// 3.Retirar
 // 3. Retirar
 app.post('/retiro', async (req, res) => {
     try {
         const { accountNumber, amount } = req.body;
 
         // =========================================================
-        // NUEVO: Barrera de validación de datos (Capa de Seguridad)
+        // NUEVA BARRERA: Protección contra Inyección NoSQL
         // =========================================================
-        if (typeof amount !== 'number' || amount <= 0) {
-            return res.status(400).json({ error: "El monto debe ser un número mayor a cero" });
+        if (typeof accountNumber !== 'string') {
+            return res.status(400).json({ 
+                error: "Formato de cuenta inválido. Se detectó un payload no permitido." 
+            });
         }
 
+        const montoNumerico = Number(amount);
+
+        if (isNaN(montoNumerico) || montoNumerico <= 0) {
+            return res.status(400).json({ error: "El monto debe ser un número válido y mayor a cero" });
+        }
+
+        
+
         const acc = await Account.findOneAndUpdate(
-            { accountNumber, balance: { $gte: amount } },
-            { $inc: { balance: -amount } },
+            { accountNumber, balance: { $gte: montoNumerico } },
+            { $inc: { balance: -montoNumerico } },
             { new: true }
         );
 
-        if (!acc) return res.status(404).json({ error: "Cuenta no existe o saldo insuficiente" });
+        if (!acc) {
+            const cuentaExiste = await Account.findOne({ accountNumber });
+            if (!cuentaExiste) return res.status(404).json({ error: "Cuenta no existe" });
+            return res.status(400).json({ error: "Saldo insuficiente" });
+        }
 
         await publishEvent('transaction.withdraw', {
             accountNumber: acc.accountNumber,
-            amount: amount,
+            amount: montoNumerico,
             newBalance: acc.balance
         });
 
         res.json(acc);
-    } catch (err) { 
-        res.status(500).json({ error: err.message }); 
-    }
+    } catch (err) { res.status(500).json({ error: err.message }); }
 });
-
-
-
