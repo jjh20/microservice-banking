@@ -43,6 +43,7 @@ app.post('/cuenta', async (req, res) => {
 
         res.status(201).json(cuenta);
     } catch (err) { 
+        console.error('[POST /cuenta] Error:', err.message);
         res.status(500).json({ error: err.message }); 
     }
 });
@@ -52,7 +53,10 @@ app.get('/saldo/:accountNumber', async (req, res) => {
     try {
         const acc = await Account.findOne({ accountNumber: req.params.accountNumber });
         acc ? res.json(acc) : res.status(404).json({ message: "Cuenta no existe" });
-    } catch (err) { res.status(500).json({ error: err.message }); }
+   } catch (err) { 
+        console.error('[GET /saldo] Error:', err.message);
+        res.status(500).json({ error: err.message }); 
+    }
 });
 
 // 3. Retirar
@@ -96,5 +100,8 @@ app.post('/retiro', async (req, res) => {
         });
 
         res.json(acc);
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    } catch (err) { 
+        console.error('[POST /retiro] Error:', err.message);
+        res.status(500).json({ error: err.message }); 
+    }
 });

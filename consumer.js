@@ -15,21 +15,22 @@ async function startConsumer() {
 
   channel.prefetch(1);
 
-  console.log(`[Consumer] Listening on queue "${QUEUE_NAME}" for pattern "${ROUTING_PATTERN}" (modo lento: 3s por mensaje)`);
+  console.log(`[Consumer] Listening on queue "${QUEUE_NAME}" for pattern "${ROUTING_PATTERN}" (modo lento: 1s por mensaje)`);
 
   channel.consume(QUEUE_NAME, async (msg) => {
     if (msg !== null) {
       const content = JSON.parse(msg.content.toString());
       console.log(`[Consumer] Procesando [${msg.fields.routingKey}]:`, content);
 
-      await new Promise((resolve) => setTimeout(resolve,1000));
+      await new Promise((resolve) => setTimeout(resolve,0)); 
 
       console.log(`[Consumer] Completado [${msg.fields.routingKey}] accountNumber=${content.accountNumber}`);
       channel.ack(msg);
     }
-  });
+  }); 
 }
 
 startConsumer().catch((err) => {
   console.error('[Consumer] Failed to start:', err.message);
 });
+
