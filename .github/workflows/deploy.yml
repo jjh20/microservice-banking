@@ -1,0 +1,25 @@
+name: Deploy a OpenShift (microservice-banking-git)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  trigger-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Instalar CLI de OpenShift (oc)
+        run: |
+          curl -L https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable/openshift-client-linux.tar.gz -o oc.tar.gz
+          tar -xzf oc.tar.gz oc
+          sudo mv oc /usr/local/bin/oc
+          oc version --client
+
+      - name: Login a OpenShift
+        run: |
+          oc login --token="${{ secrets.OC_TOKEN }}" --server=https://api.rm1.0a51.p1.openshiftapps.com:6443
+
+      - name: Disparar build de microservice-banking-git
+        run: |
+          oc start-build microservice-banking-git --follow -n jaejjh-dev
