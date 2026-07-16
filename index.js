@@ -16,7 +16,13 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://mongodb:27017/bankdb?retryW
     app.listen(3000, () => console.log('Servicio corriendo en puerto 3000'));
   })
   .catch(err => console.error('Error de conexión:', err));
+   mongoose.connection.on('disconnected', () => {
+  console.error('[Mongo] Desconectado - el servicio esta operando sin base de datos');
+});
 
+mongoose.connection.on('reconnected', () => {
+  console.log('[Mongo] Reconectado exitosamente - servicio recuperado');
+});
 // Ruta de prueba
 app.get('/test', (req, res) => res.json({ status: "OK", message: "Microservicio operativo" }));
 
