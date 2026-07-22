@@ -18,7 +18,8 @@ jobs:
 
       - name: Login a OpenShift
         run: |
-          oc login --token="${{ secrets.OC_TOKEN }}" --server=https://api.rm1.0a51.p1.openshiftapps.com:6443
+          TOKEN=$(printf '%s' "${{ secrets.OC_TOKEN }}" | tr -d '[:space:]')
+          oc login --token="$TOKEN" --server=https://api.rm1.0a51.p1.openshiftapps.com:6443
 
       - name: Disparar build de microservice-banking-git
         run: |
