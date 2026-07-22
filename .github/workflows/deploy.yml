@@ -22,4 +22,4 @@ jobs:
 
       - name: Disparar build de microservice-banking-git
         run: |
-          oc start-build microservice-banking-git --follow -n jaejjh-dev
+          oc start-build microservice-banking-git --follow -n jjimenez-dev
