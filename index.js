@@ -3,7 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const Account = require('./Account');
-
+//
 const app = express();
 app.use(express.json());
 
@@ -12,7 +12,7 @@ console.log('URI:', process.env.MONGO_URI);
 mongoose.connect(process.env.MONGO_URI || 'mongodb://mongodb:27017/bankdb?retryWrites=false')
   .then(() => {
     console.log('MongoDB conectado exitosamente');
-    connectRabbitMQ();
+    connectIBMMQ();
     app.listen(3000, () => console.log('Servicio corriendo en puerto 3000'));
   })
   .catch(err => console.error('Error de conexión:', err));
