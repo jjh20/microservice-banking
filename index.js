@@ -1,4 +1,4 @@
-const { connectRabbitMQ, publishEvent } = require('./config/rabbitmq');
+   const { connectIBMMQ, publishEvent } = require('./config/ibmmq');
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
