@@ -47,7 +47,7 @@ app.post('/cuenta', async (req, res) => {
             idRegistro: cuenta._id
         });
 
-        const COLAS_DESTINO_CUENTA = ['DEV.QUEUE.2', 'DEV.QUEUE.3', 'DEV.QUEUE.4'];
+        const COLAS_DESTINO_CUENTA = ['DEV.QUEUE.2', 'DEV.QUEUE.3', 'DEV.QUEUE.4', 'DEV.QUEUE.5'];
 
         await Promise.all(
             COLAS_DESTINO_CUENTA.map(cola => publishToQueue(cola, 'transaction.cuenta', {
