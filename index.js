@@ -47,19 +47,16 @@ app.post('/cuenta', async (req, res) => {
             idRegistro: cuenta._id
         });
 
-        await publishToQueue('DEV.QUEUE.2', 'transaction.cuenta', {
-            evento: 'CUENTA_CREADA',
-            accountNumber: cuenta.accountNumber,
-            owner: cuenta.owner,
-            balance: cuenta.balance,
-        });
+        const COLAS_DESTINO_CUENTA = ['DEV.QUEUE.2', 'DEV.QUEUE.3', 'DEV.QUEUE.4'];
 
-        await publishToQueue('DEV.QUEUE.3', 'transaction.cuenta', {
-            evento: 'CUENTA_CREADA',
-            accountNumber: cuenta.accountNumber,
-            owner: cuenta.owner,
-            balance: cuenta.balance,
-        });
+        await Promise.all(
+            COLAS_DESTINO_CUENTA.map(cola => publishToQueue(cola, 'transaction.cuenta', {
+                evento: 'CUENTA_CREADA',
+                accountNumber: cuenta.accountNumber,
+                owner: cuenta.owner,
+                balance: cuenta.balance,
+            }))
+        );
 
         res.status(201).json(cuenta);
     } catch (err) { 
@@ -119,11 +116,15 @@ app.post('/retiro', async (req, res) => {
             newBalance: acc.balance
         });
 
-        await publishToQueue('DEV.QUEUE.3', 'transaction.withdraw', {
-            accountNumber: acc.accountNumber,
-            amount: montoNumerico,
-            newBalance: acc.balance
-        });
+        const COLAS_DESTINO_RETIRO = ['DEV.QUEUE.3', 'DEV.QUEUE.4'];
+
+        await Promise.all(
+            COLAS_DESTINO_RETIRO.map(cola => publishToQueue(cola, 'transaction.withdraw', {
+                accountNumber: acc.accountNumber,
+                amount: montoNumerico,
+                newBalance: acc.balance
+            }))
+        );
 
         res.json(acc);
     } catch (err) { 
