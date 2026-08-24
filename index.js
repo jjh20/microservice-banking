@@ -54,6 +54,13 @@ app.post('/cuenta', async (req, res) => {
             balance: cuenta.balance,
         });
 
+        await publishToQueue('DEV.QUEUE.3', 'transaction.cuenta', {
+            evento: 'CUENTA_CREADA',
+            accountNumber: cuenta.accountNumber,
+            owner: cuenta.owner,
+            balance: cuenta.balance,
+        });
+
         res.status(201).json(cuenta);
     } catch (err) { 
         console.error('[POST /cuenta] Error:', err.message);
@@ -107,6 +114,12 @@ app.post('/retiro', async (req, res) => {
         }
 
         await publishEvent('transaction.withdraw', {
+            accountNumber: acc.accountNumber,
+            amount: montoNumerico,
+            newBalance: acc.balance
+        });
+
+        await publishToQueue('DEV.QUEUE.3', 'transaction.withdraw', {
             accountNumber: acc.accountNumber,
             amount: montoNumerico,
             newBalance: acc.balance
