@@ -1,4 +1,4 @@
-   const { connectIBMMQ, publishEvent } = require('./config/ibmmq');
+   const { connectIBMMQ, publishEvent, publishToQueue } = require('./config/ibmmq');
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
@@ -45,6 +45,13 @@ app.post('/cuenta', async (req, res) => {
             owner: cuenta.owner,
             balance: cuenta.balance,
             idRegistro: cuenta._id
+        });
+
+        await publishToQueue('DEV.QUEUE.2', 'transaction.cuenta', {
+            evento: 'CUENTA_CREADA',
+            accountNumber: cuenta.accountNumber,
+            owner: cuenta.owner,
+            balance: cuenta.balance,
         });
 
         res.status(201).json(cuenta);

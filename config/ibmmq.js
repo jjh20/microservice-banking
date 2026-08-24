@@ -56,14 +56,14 @@ async function connectIBMMQ() {
   }
 }
 
-async function publishEvent(routingKey, payload) {
+async function publishToQueue(queueName, routingKey, payload) {
   const mensaje = JSON.stringify({
     ...payload,
     routingKey,
     timestamp: new Date().toISOString(),
   });
 
-  const url = `${IBM_MQ_REST_URL}/ibmmq/rest/v2/messaging/qmgr/${IBM_MQ_QMGR}/queue/${IBM_MQ_QUEUE}/message`;
+  const url = `${IBM_MQ_REST_URL}/ibmmq/rest/v2/messaging/qmgr/${IBM_MQ_QMGR}/queue/${queueName}/message`;
 
   try {
     const respuesta = await fetch(url, {
@@ -86,4 +86,8 @@ async function publishEvent(routingKey, payload) {
   }
 }
 
-module.exports = { connectIBMMQ, publishEvent };
+async function publishEvent(routingKey, payload) {
+  return publishToQueue(IBM_MQ_QUEUE, routingKey, payload);
+}
+
+module.exports = { connectIBMMQ, publishEvent, publishToQueue };
